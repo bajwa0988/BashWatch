@@ -1,9 +1,5 @@
 # BashWatch — Integrated Linux Security & Active Response Suite
 
-**Course:** Operating Systems (Spring-2026) — Bahria University, Islamabad  
-**Teacher:** Engr. Aamir Sohail  
-**Group:** Saad Ali Bajwa (078) & Shahzeb Qamar (066) | BSE 4B
-
 ---
 
 ## What is BashWatch?
