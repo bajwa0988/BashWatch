@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BashWatch Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600&family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
+
+    <header class="border-b border-slate-900 bg-slate-900/50 backdrop-blur sticky top-0 z-50 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">BashWatch</h1>
+                <p class="text-xs text-slate-400 mt-0.5">Active Security Engine Monitor</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="text-sm text-slate-400">Global Daemon Status:</span>
+                <span id="service-badge" class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-slate-800 text-slate-400 animate-pulse">Checking...</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <div class="lg:col-span-1 flex flex-col gap-6">
+            
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
+                <h2 class="text-lg font-bold mb-4 flex items-center gap-2">🕹️ Core Engine Controls</h2>
+                <div class="grid grid-cols-3 gap-3">
+                    <button onclick="controlService('start')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 px-4 rounded-xl transition text-sm shadow-lg shadow-emerald-900/20">Start</button>
+                    <button onclick="controlService('stop')" class="bg-rose-600 hover:bg-rose-500 text-white font-semibold py-2.5 px-4 rounded-xl transition text-sm shadow-lg shadow-rose-900/20">Stop</button>
+                    <button onclick="controlService('restart')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold py-2.5 px-4 rounded-xl transition text-sm">Restart</button>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col gap-4">
+                <h2 class="text-lg font-bold mb-1">🛡️ Defensive Component Modules</h2>
+                <p class="text-xs text-slate-400 mb-2">Toggling a module automatically applies parameters and resets the monitoring lifecycle.</p>
+                
+                <div class="flex items-center justify-between p-3.5 bg-slate-950 rounded-xl border border-slate-800/60">
+                    <div>
+                        <h3 class="text-sm font-semibold">Network Shield</h3>
+                        <p class="text-xxs text-slate-500">IP Table Brute-Force Ban</p>
+                    </div>
+                    <button id="btn-network_shield" onclick="toggleModule('network_shield')" class="w-12 h-6 rounded-full bg-slate-800 relative transition-colors duration-200 focus:outline-none"><span class="w-4 h-4 rounded-full bg-slate-400 absolute left-1 top-1 transition-transform duration-200"></span></button>
+                </div>
+
+                <div class="flex items-center justify-between p-3.5 bg-slate-950 rounded-xl border border-slate-800/60">
+                    <div>
+                        <h3 class="text-sm font-semibold">Session Watchdog</h3>
+                        <p class="text-xxs text-slate-500">Forbidden Command Guard</p>
+                    </div>
+                    <button id="btn-session_watchdog" onclick="toggleModule('session_watchdog')" class="w-12 h-6 rounded-full bg-slate-800 relative transition-colors duration-200 focus:outline-none"><span class="w-4 h-4 rounded-full bg-slate-400 absolute left-1 top-1 transition-transform duration-200"></span></button>
+                </div>
+
+                <div class="flex items-center justify-between p-3.5 bg-slate-950 rounded-xl border border-slate-800/60">
+                    <div>
+                        <h3 class="text-sm font-semibold">File Integrity Trap</h3>
+                        <p class="text-xxs text-slate-500">Inotify File Honeypot Detections</p>
+                    </div>
+                    <button id="btn-file_trap" onclick="toggleModule('file_trap')" class="w-12 h-6 rounded-full bg-slate-800 relative transition-colors duration-200 focus:outline-none"><span class="w-4 h-4 rounded-full bg-slate-400 absolute left-1 top-1 transition-transform duration-200"></span></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="lg:col-span-2 flex flex-col h-full min-h-[450px]">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl flex flex-col flex-1 shadow-xl overflow-hidden">
+                <div class="px-5 py-4 border-b border-slate-800 bg-slate-900/80 flex justify-between items-center">
+                    <h2 class="text-lg font-bold flex items-center gap-2">📟 Live Real-time System Log output</h2>
+                    <span class="h-2 w-2 rounded-full bg-emerald-500 animate-ping"></span>
+                </div>
+                <div class="p-4 flex-1 bg-slate-950 overflow-y-auto font-mono text-xs text-slate-300 leading-relaxed max-h-[500px]" id="logs-terminal">
+                    Loading console stream execution variables...
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="text-center py-4 text-xs text-slate-600 border-t border-slate-900 mt-6">
+        Bahria University Security Laboratory Systems — Spring 2026
+    </footer>
+
+    <script>
+        let moduleStates = {};
+
+        async function refreshStatus() {
+            try {
+                const response = await fetch('/api/status');
+                const data = await response.json();
+                
+                // Update Badge Graphic state
+                const badge = document.getElementById('service-badge');
+                badge.innerText = data.service;
+                badge.className = "px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider transition-all ";
+                if(data.service === 'active') {
+                    badge.className += "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+                } else {
+                    badge.className += "bg-rose-500/10 text-rose-400 border border-rose-500/20";
+                }
+
+                // Update Module toggle sliders
+                moduleStates = data.modules;
+                for (const [mod, enabled] of Object.entries(moduleStates)) {
+                    const btn = document.getElementById(`btn-${mod}`);
+                    const circle = btn.querySelector('span');
+                    if (enabled) {
+                        btn.className = "w-12 h-6 rounded-full bg-emerald-500 relative transition-colors duration-200 focus:outline-none";
+                        circle.className = "w-4 h-4 rounded-full bg-white absolute right-1 top-1 transition-transform duration-200";
+                    } else {
+                        btn.className = "w-12 h-6 rounded-full bg-slate-800 relative transition-colors duration-200 focus:outline-none";
+                        circle.className = "w-4 h-4 rounded-full bg-slate-400 absolute left-1 top-1 transition-transform duration-200";
+                    }
+                }
+            } catch (err) { console.error("Error connecting to status API", err); }
+        }
+
+        async function refreshLogs() {
+            try {
+                const response = await fetch('/api/logs');
+                const data = await response.json();
+                const term = document.getElementById('logs-terminal');
+                term.textContent = data.logs;
+                term.scrollTop = term.scrollHeight; // Auto scroll to bottom
+            } catch (err) { console.error("Error reading application logs", err); }
+        }
+
+        async function controlService(action) {
+            await fetch(`/api/service/${action}`, { method: 'POST' });
+            setTimeout(() => { refreshStatus(); refreshLogs(); }, 800);
+        }
+
+        async function toggleModule(modName) {
+            const targetState = !moduleStates[modName];
+            await fetch(`/api/module/${modName}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ enable: targetState })
+            });
+            setTimeout(() => { refreshStatus(); refreshLogs(); }, 800);
+        }
+
+        // Run Periodic Synchronization
+        setInterval(refreshStatus, 2000);
+        setInterval(refreshLogs, 2000);
+        window.onload = () => { refreshStatus(); refreshLogs(); };
+    </script>
+</body>
+</html>

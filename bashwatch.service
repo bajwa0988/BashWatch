@@ -1,0 +1,59 @@
+# =============================================================================
+#  BashWatch Systemd Service Unit
+#  Install path : /etc/systemd/system/bashwatch.service
+#
+#  To install & enable:
+#    sudo cp bashwatch.service /etc/systemd/system/
+#    sudo systemctl daemon-reload
+#    sudo systemctl enable --now bashwatch
+# =============================================================================
+
+[Unit]
+Description=BashWatch — Integrated Linux Security & Active Response Suite
+Documentation=file:///home/kali/bashwatch/README.md
+# Start after the network and logging subsystems are ready
+After=network.target rsyslog.service
+Wants=network.target
+
+[Service]
+# ── Identity ────────────────────────────────────────────────────────────────
+# Must run as root to use iptables, pkill other users, and lock accounts.
+User=root
+Group=root
+
+# ── Execution ───────────────────────────────────────────────────────────────
+Type=simple
+ExecStart=/bin/bash /home/kali/bashwatch/bashwatch.sh
+ExecStop=/bin/kill -SIGTERM $MAINPID
+
+# Working directory (logs/forensics live here)
+WorkingDirectory=/home/kali/bashwatch
+
+# ── Restart policy ──────────────────────────────────────────────────────────
+# Restart if the script crashes; don't restart on clean exit (code 0).
+Restart=on-failure
+RestartSec=10s
+
+# ── Output / Logging ────────────────────────────────────────────────────────
+# Script writes its own timestamped logs; journal captures stderr.
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=bashwatch
+
+# ── Resource limits ─────────────────────────────────────────────────────────
+# Prevent runaway resource use while still allowing full system inspection.
+LimitNOFILE=65536
+LimitNPROC=512
+MemoryMax=256M
+CPUQuota=25%
+
+# ── Security hardening ──────────────────────────────────────────────────────
+# Keep a private /tmp so the PID file is isolated.
+PrivateTmp=true
+# Allow the script to call iptables (requires CAP_NET_ADMIN).
+AmbientCapabilities=CAP_NET_ADMIN CAP_KILL CAP_AUDIT_READ
+CapabilityBoundingSet=CAP_NET_ADMIN CAP_KILL CAP_AUDIT_READ CAP_DAC_READ_SEARCH
+
+[Install]
+# Start in the standard multi-user (non-graphical & graphical) targets.
+WantedBy=multi-user.target
