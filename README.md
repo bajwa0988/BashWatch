@@ -455,11 +455,6 @@ touch /home/kali/bashwatch/honeypots/secret_keys/test.txt
 - **Language:** Bash (daemon) + Python (web UI)
 - **Framework:** Flask 2.3.2
 - **License:** GNU General Public License v3.0
-- **Author(s):** Saad Ali Bajwa (078), Shahzeb Qamar (066)
-- **Institution:** Bahria University, Islamabad
-- **Course:** Operating Systems (Spring-2026)
-- **Instructor:** Engr. Aamir Sohail
-
 ---
 
 ## Related Resources
