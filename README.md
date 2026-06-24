@@ -432,7 +432,6 @@ touch /home/kali/bashwatch/honeypots/secret_keys/test.txt
 
 ---
 
-## Notes
 
 ## Notes
 
